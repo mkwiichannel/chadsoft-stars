@@ -1,34 +1,36 @@
-const fs = require("fs");
-const https = require("https");
+res.on("end", () => {
+  try {
+    // 🔥 remove BOM if it exists
+    const cleaned = data.replace(/^\uFEFF/, "");
+    const json = JSON.parse(cleaned);
 
-const API_URL = "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.json";
+    console.log("Ghost count:", json.ghostCount);
 
-function getJSON(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = "";
-      res.on("data", chunk => data += chunk);
-      res.on("end", () => resolve(JSON.parse(data)));
-    }).on("error", reject);
-  });
-}
+    const bestPerTrack = {};
 
-async function scrape() {
+    json.ghosts.forEach(g => {
+      const track = g.trackName;
 
-  const data = await getJSON(API_URL);
+      if (!bestPerTrack[track] ||
+          g.finishTimeSimple < bestPerTrack[track].finishTimeSimple) {
+        bestPerTrack[track] = {
+          track: g.trackName,
+          time: g.finishTimeSimple,
+          date: g.dateSet.split("T")[0],
+          download: "https://chadsoft.co.uk" + g.href
+        };
+      }
+    });
 
-  const ghosts = data.ghosts.map(g => ({
-    track: g.trackName,
-    time: g.finishTimeSimple,
-    date: g.dateSet.split("T")[0],
-    download: "https://chadsoft.co.uk" + g.ghostHref
-  }));
+    const result = Object.values(bestPerTrack);
 
-  fs.writeFileSync("ghosts.json", JSON.stringify(ghosts, null, 2));
-  console.log("Updated ghosts:", ghosts.length);
-}
+    require("fs").writeFileSync(
+      "ghosts.json",
+      JSON.stringify(result, null, 2)
+    );
 
-scrape().catch(err => {
-  console.error(err);
-  process.exit(1);
+    console.log("✅ ghosts.json created!");
+  } catch (err) {
+    console.error("JSON parse failed:", err);
+  }
 });
