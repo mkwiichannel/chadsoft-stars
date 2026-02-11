@@ -1,9 +1,7 @@
 const fs = require("fs");
 const https = require("https");
 
-const PLAYER_ID = "FF48F12DC77C5E";
-
-const API_URL = `https://tt.chadsoft.co.uk/players/${PLAYER_ID}.json`;
+const API_URL = "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.json";
 
 function getJSON(url) {
   return new Promise((resolve, reject) => {
