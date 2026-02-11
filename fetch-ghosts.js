@@ -1,42 +1,30 @@
 const fs = require("fs");
 const https = require("https");
-const cheerio = require("cheerio");
 
-const PLAYER_URL = "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.html";
+const PLAYER_ID = "FF48F12DC77C5E";
 
-function getHTML(url) {
+const API_URL = `https://tt.chadsoft.co.uk/players/${PLAYER_ID}.json`;
+
+function getJSON(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       let data = "";
       res.on("data", chunk => data += chunk);
-      res.on("end", () => resolve(data));
+      res.on("end", () => resolve(JSON.parse(data)));
     }).on("error", reject);
   });
 }
 
 async function scrape() {
-  const html = await getHTML(PLAYER_URL);
-  const $ = cheerio.load(html);
 
-  const ghosts = [];
+  const data = await getJSON(API_URL);
 
-  $("table tbody tr").each((i, row) => {
-    const tds = $(row).find("td");
-
-    const track = $(tds[0]).text().trim();
-    const time = $(tds[1]).text().trim();
-    const date = $(tds[2]).text().trim();
-    const link = $(tds[3]).find("a").attr("href");
-
-    if (track && link) {
-      ghosts.push({
-        track,
-        time,
-        date,
-        download: "https://chadsoft.co.uk" + link
-      });
-    }
-  });
+  const ghosts = data.ghosts.map(g => ({
+    track: g.trackName,
+    time: g.finishTimeSimple,
+    date: g.dateSet.split("T")[0],
+    download: "https://chadsoft.co.uk" + g.ghostHref
+  }));
 
   fs.writeFileSync("ghosts.json", JSON.stringify(ghosts, null, 2));
   console.log("Updated ghosts:", ghosts.length);
