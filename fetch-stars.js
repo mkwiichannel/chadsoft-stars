@@ -1,5 +1,4 @@
 const fs = require("fs");
-const cheerio = require("cheerio");
 
 const URL =
   "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.html";
@@ -8,20 +7,15 @@ const URL =
   try {
     const res = await fetch(URL);
     const html = await res.text();
-    const $ = cheerio.load(html);
 
-    let bronze = 0;
-    let silver = 0;
-    let gold = 0;
+    // Extract raw numbers directly from page text
+    const bronzeMatch = html.match(/Bronze[^0-9]+(\d+)/i);
+    const silverMatch = html.match(/Silver[^0-9]+(\d+)/i);
+    const goldMatch = html.match(/Gold[^0-9]+(\d+)/i);
 
-    $("tr").each((_, row) => {
-      const text = $(row).text().toLowerCase();
-      const value = parseInt($(row).find("td").last().text(), 10);
-
-      if (text.includes("bronze")) bronze = value;
-      if (text.includes("silver")) silver = value;
-      if (text.includes("gold")) gold = value;
-    });
+    const bronze = bronzeMatch ? parseInt(bronzeMatch[1]) : 0;
+    const silver = silverMatch ? parseInt(silverMatch[1]) : 0;
+    const gold = goldMatch ? parseInt(goldMatch[1]) : 0;
 
     const data = {
       bronze,
@@ -31,6 +25,7 @@ const URL =
     };
 
     fs.writeFileSync("stars.json", JSON.stringify(data, null, 2));
+
     console.log("✅ stars.json updated:", data);
   } catch (err) {
     console.error("❌ Error:", err);
