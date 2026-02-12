@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CTGP Profile</title>
+<style>
+body {
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  color: #111;
+  text-align: center;
+}
+
+.container {
+  background: white;
+  width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+img {
+  margin-top: 20px;
+  border-radius: 8px;
+  background: #eee;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>CTGP Profile</h1>
+  <div id="miiContainer">Loading Mii...</div>
+</div>
+
+<script>
+fetch("mii.json")
+  .then(res => res.json())
+  .then(data => {
+    if (!data.miiUrl) {
+      document.getElementById("miiContainer").innerText = "No Mii found.";
+      return;
+    }
+
+    document.getElementById("miiContainer").innerHTML =
+      `<img src="${data.miiUrl}" width="256">`;
+  });
+</script>
+
+</body>
+</html>
