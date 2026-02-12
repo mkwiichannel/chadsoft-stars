@@ -2,19 +2,24 @@ import fs from "fs";
 import https from "https";
 
 function fetchJSON(url) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => resolve(JSON.parse(data)));
-    });
-  });
-}
 
-function pidToFc(pid) {
-  const fcBig = BigInt(pid);
-  const fcStr = fcBig.toString().padStart(12, "0");
-  return fcStr.replace(/(\d{4})(\d{4})(\d{4})/, "$1-$2-$3");
+      res.on("data", (chunk) => (data += chunk));
+
+      res.on("end", () => {
+        try {
+          const parsed = JSON.parse(data);
+          resolve(parsed);
+        } catch (err) {
+          console.error("Invalid JSON from:", url);
+          console.error(data.substring(0, 500));
+          reject(err);
+        }
+      });
+    }).on("error", reject);
+  });
 }
 
 function fetchMii(pid) {
@@ -61,21 +66,43 @@ function fetchMii(pid) {
       });
     });
 
+    req.on("error", () => resolve(null));
+
     req.write(soap);
     req.end();
   });
 }
 
+function pidToFc(pid) {
+  const fcBig = BigInt(pid);
+  const fcStr = fcBig.toString().padStart(12, "0");
+  return fcStr.replace(/(\d{4})(\d{4})(\d{4})/, "$1-$2-$3");
+}
+
 async function build() {
-  const leaderboard = await fetchJSON(
-    "https://tt.chadsoft.co.uk/leaderboard/100cc.json"
+  const tracks = Array.from({ length: 32 }, (_, i) =>
+    String(i + 1).padStart(2, "0")
   );
 
   const pids = new Set();
 
-  leaderboard.times.forEach((entry) => {
-    if (entry.pid) pids.add(entry.pid);
-  });
+  for (const track of tracks) {
+    const url = `https://tt.chadsoft.co.uk/leaderboard/${track}.json?limit=1000`;
+
+    try {
+      const data = await fetchJSON(url);
+
+      if (data && data.times) {
+        data.times.forEach((entry) => {
+          if (entry.pid) pids.add(entry.pid);
+        });
+      }
+
+      console.log("Fetched track", track);
+    } catch (err) {
+      console.log("Skipping track", track);
+    }
+  }
 
   const result = {};
 
@@ -96,7 +123,10 @@ async function build() {
     console.log("Added:", fc);
   }
 
+  fs.mkdirSync("data", { recursive: true });
   fs.writeFileSync("data/miis.json", JSON.stringify(result, null, 2));
+
+  console.log("Finished building miis.json");
 }
 
 build();
