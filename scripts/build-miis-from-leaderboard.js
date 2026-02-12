@@ -3,16 +3,29 @@ import https from "https";
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
+    const options = {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json"
+      }
+    };
+
+    https.get(url, options, (res) => {
       let data = "";
 
       res.on("data", (chunk) => (data += chunk));
+
       res.on("end", () => {
+        if (res.statusCode !== 200) {
+          return reject("Status code " + res.statusCode);
+        }
+
         try {
           resolve(JSON.parse(data));
         } catch (err) {
-          console.error("Invalid JSON from:", url);
-          reject(err);
+          console.log("Response was:");
+          console.log(data.substring(0, 300));
+          reject("Invalid JSON");
         }
       });
     }).on("error", reject);
@@ -91,7 +104,7 @@ async function build() {
       if (data && data.times) {
         data.times.forEach((entry) => {
           if (entry.playerId) {
-            pids.add(entry.playerId); // THIS is the real PID
+            pids.add(entry.playerId);
           }
         });
       }
