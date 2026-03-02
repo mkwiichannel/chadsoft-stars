@@ -1,55 +1,51 @@
 const fs = require("fs");
-const cheerio = require("cheerio");
 
 const players = [
   {
     name: "dom",
-    url: "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.html"
+    url: "https://chadsoft.co.uk/time-trials/players/3F/FF48F12DC77C5E.json"
   },
   {
     name: "tin",
-    url: "https://chadsoft.co.uk/time-trials/players/34/8FDE9288B138C7.html"
+    url: "https://chadsoft.co.uk/time-trials/players/34/8FDE9288B138C7.json"
   },
   {
     name: "soap",
-    url: "https://chadsoft.co.uk/time-trials/players/0B/925BB435D54BC3.html"
+    url: "https://chadsoft.co.uk/time-trials/players/0B/925BB435D54BC3.json"
   }
 ];
 
 async function scrapePlayer(player) {
-  console.log("Scraping:", player.name);
+  console.log("Fetching JSON for:", player.name);
 
-  const res = await fetch(player.url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
+  const res = await fetch(player.url);
 
   if (!res.ok) {
-    throw new Error("Failed to fetch " + player.url);
+    throw new Error("Failed to fetch JSON for " + player.name);
   }
 
-  const html = await res.text();
-  const $ = cheerio.load(html);
+  const data = await res.json();
 
   let bronze = 0;
   let silver = 0;
   let gold = 0;
 
-  $("img").each((i, el) => {
-    const alt = ($(el).attr("alt") || "").toLowerCase();
+  if (data.timeTrials) {
+    data.timeTrials.forEach(trial => {
+      if (trial.medal === "Bronze") bronze++;
+      if (trial.medal === "Silver") silver++;
+      if (trial.medal === "Gold") gold++;
+    });
+  }
 
-    if (alt.includes("bronze")) bronze++;
-    if (alt.includes("silver")) silver++;
-    if (alt.includes("gold")) gold++;
-  });
-
-  const data = { bronze, silver, gold };
+  const result = { bronze, silver, gold };
 
   fs.writeFileSync(
     `${player.name}.json`,
-    JSON.stringify(data, null, 2)
+    JSON.stringify(result, null, 2)
   );
 
-  console.log(player.name, data);
+  console.log(player.name, result);
 }
 
 async function run() {
