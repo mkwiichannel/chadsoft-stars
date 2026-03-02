@@ -2,7 +2,6 @@ const fs = require("fs");
 const fetch = require("node-fetch");
 const cheerio = require("cheerio");
 
-/* ===== PLAYERS ===== */
 const players = [
   {
     name: "dom",
@@ -18,7 +17,6 @@ const players = [
   }
 ];
 
-/* ===== SCRAPER FUNCTION ===== */
 async function scrapePlayer(player) {
   try {
     console.log("Scraping:", player.name);
@@ -34,12 +32,13 @@ async function scrapePlayer(player) {
     let silver = 0;
     let gold = 0;
 
-    $(".medal").each((i, el) => {
-      const medal = $(el).attr("title") || "";
+    $("img").each((i, el) => {
+      const alt = $(el).attr("alt") || "";
+      const src = $(el).attr("src") || "";
 
-      if (medal.includes("Bronze")) bronze++;
-      if (medal.includes("Silver")) silver++;
-      if (medal.includes("Gold")) gold++;
+      if (alt.includes("Bronze") || src.includes("bronze")) bronze++;
+      if (alt.includes("Silver") || src.includes("silver")) silver++;
+      if (alt.includes("Gold") || src.includes("gold")) gold++;
     });
 
     const data = { bronze, silver, gold };
@@ -56,7 +55,6 @@ async function scrapePlayer(player) {
   }
 }
 
-/* ===== RUN ALL ===== */
 async function run() {
   for (const player of players) {
     await scrapePlayer(player);
