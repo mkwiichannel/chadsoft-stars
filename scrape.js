@@ -18,15 +18,13 @@ const players = [
   }
 ];
 
-/* ===== SCRAPER ===== */
+/* ===== SCRAPER FUNCTION ===== */
 async function scrapePlayer(player) {
   try {
     console.log("Scraping:", player.name);
 
     const res = await fetch(player.url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
+      headers: { "User-Agent": "Mozilla/5.0" }
     });
 
     const html = await res.text();
