@@ -1,8 +1,11 @@
 {
-  "name": "mkwii-mii-builder",
+  "name": "chadsoft-stars",
   "version": "1.0.0",
-  "type": "commonjs",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "cheerio": "^1.0.0"
   }
 }
