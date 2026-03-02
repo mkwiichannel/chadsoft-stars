@@ -1,5 +1,4 @@
 const fs = require("fs");
-const fetch = require("node-fetch");
 const cheerio = require("cheerio");
 
 const players = [
@@ -13,46 +12,44 @@ const players = [
   },
   {
     name: "soap",
-    url: "https://chadsoft.co.uk/time-trials/rkgd/4E/86/99E727A2266B627FB33184AE121C49FC531E.html"
+    url: "https://chadsoft.co.uk/time-trials/players/0B/925BB435D54BC3.html"
   }
 ];
 
 async function scrapePlayer(player) {
-  try {
-    console.log("Scraping:", player.name);
+  console.log("Scraping:", player.name);
 
-    const res = await fetch(player.url, {
-      headers: { "User-Agent": "Mozilla/5.0" }
-    });
+  const res = await fetch(player.url, {
+    headers: { "User-Agent": "Mozilla/5.0" }
+  });
 
-    const html = await res.text();
-    const $ = cheerio.load(html);
-
-    let bronze = 0;
-    let silver = 0;
-    let gold = 0;
-
-    $("img").each((i, el) => {
-      const alt = $(el).attr("alt") || "";
-      const src = $(el).attr("src") || "";
-
-      if (alt.includes("Bronze") || src.includes("bronze")) bronze++;
-      if (alt.includes("Silver") || src.includes("silver")) silver++;
-      if (alt.includes("Gold") || src.includes("gold")) gold++;
-    });
-
-    const data = { bronze, silver, gold };
-
-    fs.writeFileSync(
-      `${player.name}-stars.json`,
-      JSON.stringify(data, null, 2)
-    );
-
-    console.log(`${player.name} updated`, data);
-
-  } catch (err) {
-    console.error("Error scraping", player.name, err);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${player.name}`);
   }
+
+  const html = await res.text();
+  const $ = cheerio.load(html);
+
+  let bronze = 0;
+  let silver = 0;
+  let gold = 0;
+
+  $("img").each((i, el) => {
+    const src = ($(el).attr("src") || "").toLowerCase();
+
+    if (src.includes("bronze")) bronze++;
+    if (src.includes("silver")) silver++;
+    if (src.includes("gold")) gold++;
+  });
+
+  const data = { bronze, silver, gold };
+
+  fs.writeFileSync(
+    `${player.name}.json`,
+    JSON.stringify(data, null, 2)
+  );
+
+  console.log(`${player.name} updated`, data);
 }
 
 async function run() {
