@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://mknitro.com/favicon.ico" alt="Mario Kart Nitro" width="96">
+<img src="https://github.com/mkwiichannel/chadsoft-stars/blob/main/Resize_Image_to_1080p_Full_Screen_3.png" alt="Mario Kart Nitro" width="96">
 
 # MARIO KART NITRO
 
