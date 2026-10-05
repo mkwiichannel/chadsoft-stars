@@ -30,10 +30,6 @@ Race with players from around the world and compete for your place on the Nitro 
 
 ### VR & Rankings
 
-Every race can be part of the climb.
-
-Build your **Versus Rating**, move through the ranks and prove yourself against the Nitro community.
-
 **Bronze → Silver → Gold → Platinum → Diamond → Master → Grandmaster → Immortal → One Above All**
 
 ### Custom Track Experience
