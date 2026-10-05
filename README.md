@@ -9,7 +9,7 @@
 
 [![Website](https://img.shields.io/badge/Website-mknitro.com-ff7a00?style=for-the-badge\&logo=googlechrome\&logoColor=white)](https://mknitro.com)
 [![Releases](https://img.shields.io/github/v/release/Massinkjoshua/Mario-Kart-Nitro-Releases?style=for-the-badge\&color=c084fc\&label=LATEST%20RELEASE)](https://github.com/Massinkjoshua/Mario-Kart-Nitro-Releases/releases)
-[![Discord](https://img.shields.io/badge/Discord-Community-5865F2?style=for-the-badge\&logo=discord\&logoColor=white)](https://discord.gg/wbU8vw8vJq)
+[![Discord](https://img.shields.io/badge/Discord-Community-5865F2?style=for-the-badge\&logo=discord\&logoColor=white)](https://discord.gg/AhkHNPG65G))
 
 </div>
 
